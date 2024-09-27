@@ -47,3 +47,6 @@ services:
       - K6_OUT=influxdb=http://influxdb:8086/k6
     volumes:
       - ./scripts:/scripts
+      - ./output:/home/k6/output
+   
+    

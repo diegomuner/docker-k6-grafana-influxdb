@@ -1,19 +1,20 @@
-import { browser } from 'k6/browser';
-import { check } from 'k6';
+import { browser } from "k6/browser";
+import { check } from "k6";
 
 export const options = {
   scenarios: {
     ui: {
-      executor: 'shared-iterations',
+      executor: "shared-iterations",
       options: {
         browser: {
-          type: 'chromium',
+          type: "chromium",
+          headless: false,
         },
       },
     },
   },
   thresholds: {
-    checks: ['rate==1.0'],
+    //checks: ['rate==1.0'],
   },
 };
 
@@ -22,17 +23,18 @@ export default async function () {
   const page = await context.newPage();
 
   try {
-    await page.goto('https://test.k6.io/my_messages.php');
-
-    await page.locator('input[name="login"]').type('admin');
-    await page.locator('input[name="password"]').type('123');
-
-    await Promise.all([page.waitForNavigation(), page.locator('input[type="submit"]').click()]);
-
-    const header = await page.locator('h2').textContent();
-    check(header, {
-      header: (h) => h == 'Welcome, admin!',
-    });
+    await page.goto("https://qa-11x-staging.brinqa.net/");
+    await page.screenshot({ path: "/home/k6/output/screenshot1.png" });
+    await page.locator('input[data-testid="input-username"]').type("sysadmin");
+    await page.locator('input[data-testid="input-password"]').type("sysadmin");
+    await page.waitForTimeout(2000);
+    await page.screenshot({ path: "/home/k6/output/screenshot2.png" });
+    await Promise.all([
+      page.waitForNavigation(),
+      page.locator('button[data-testid="button-login"]').click(),
+    ]);
+    await page.waitForTimeout(5000);
+    await page.screenshot({ path: "/home/k6/output/screenshot3.png" });
   } finally {
     await page.close();
   }
